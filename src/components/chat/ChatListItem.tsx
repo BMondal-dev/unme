@@ -8,30 +8,30 @@ interface ChatListItemProps {
 
 export const ChatListItem = component$<ChatListItemProps>(({ chat }) => {
   return (
-    <div class="flex items-center p-4 hover:bg-fresh-eggplant-50 transition-colors cursor-pointer border-b border-black select-none">
+    <div class="hover:bg-fresh-eggplant-50 flex cursor-pointer items-center border-b border-black p-4 transition-colors select-none">
       <div class="relative">
-      <img
-        src={chat.avatar}
-        alt={chat.name}
-        width={48}  // Matches w-12 (12 * 4px = 48px)
-        height={48} // Matches h-12
-        class="w-12 h-12 rounded-full border-2 border-black"
-      />
+        <img
+          src={chat.avatar}
+          alt={chat.name}
+          width={48} // Matches w-12 (12 * 4px = 48px)
+          height={48} // Matches h-12
+          class="h-12 w-12 rounded-full border-2 border-black"
+        />
         {chat.isOnline && (
-          <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+          <div class="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-white bg-green-500"></div>
         )}
       </div>
       <div class="ml-4 flex-1">
-        <div class="flex justify-between items-center">
+        <div class="flex items-center justify-between">
           <h3 class="font-semibold">{chat.name}</h3>
           <span class="text-xs text-gray-500">{chat.time}</span>
         </div>
-        <div class="flex justify-between items-center mt-1">
-          <p class="text-sm text-gray-600 truncate max-w-[180px]">
+        <div class="mt-1 flex items-center justify-between">
+          <p class="max-w-[180px] truncate text-sm text-gray-600">
             {chat.lastMessage}
           </p>
           {chat.unreadCount > 0 && (
-            <span class="bg-fresh-eggplant-600 text-white text-xs font-bold w-5 h-5 border-1 border-black rounded-full flex items-center justify-center">
+            <span class="bg-fresh-eggplant-600 flex h-5 w-5 items-center justify-center rounded-full border-1 border-black text-xs font-bold text-white">
               {chat.unreadCount}
             </span>
           )}
