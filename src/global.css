@@ -1,0 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-bg: #f4ecea;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    font-family: "Geist Mono", "Fira Code", "Cascadia Code", "JetBrains Mono",
+      monospace;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@theme {
+  --color-fresh-eggplant-50: #fff0fb;
+  --color-fresh-eggplant-100: #ffe4f8;
+  --color-fresh-eggplant-200: #ffc8f3;
+  --color-fresh-eggplant-300: #ff9be6;
+  --color-fresh-eggplant-400: #ff5dd3;
+  --color-fresh-eggplant-500: #ff2ebd;
+  --color-fresh-eggplant-600: #f80a9e;
+  --color-fresh-eggplant-700: #d9007f;
+  --color-fresh-eggplant-800: #b20268;
+  --color-fresh-eggplant-900: #97075a;
+  --color-fresh-eggplant-950: #5c0032;
+}
