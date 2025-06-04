@@ -17,7 +17,6 @@ export const SendIcon = component$<SendIconProps>(
         xmlns="http://www.w3.org/2000/svg"
         class={className}
         {...props}
-
       >
         <g clip-path="url(#clip0_4418_8592)">
           <path
