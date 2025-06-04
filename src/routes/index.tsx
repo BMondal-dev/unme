@@ -6,10 +6,10 @@ import { SearchIcon } from "~/components/icons/SearchIcon";
 export default component$(() => {
   return (
     <>
-      <div class="flex items-center justify-between p-4 bg-fresh-eggplant-100 rounded-b-lg border-b-2 border-black">
+      <div class="bg-fresh-eggplant-100 flex items-center justify-between rounded-b-lg border-b-2 border-black p-4">
         <h1 class="text-xl font-bold">Hello, Bijit</h1>
-        <IconWrapper class="w-8 h-8">
-          <SearchIcon class="w-5 h-5 text-black" />
+        <IconWrapper class="h-8 w-8">
+          <SearchIcon class="h-6 w-6" />
         </IconWrapper>
       </div>
     </>
