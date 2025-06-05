@@ -16,11 +16,6 @@ export default component$(() => {
     avatar: "https://i.pravatar.cc/150?img=1",
   };
 
-  const stats = [
-    { label: "Posts", value: "1,234" },
-    { label: "Followers", value: "5.6K" },
-    { label: "Following", value: "342" },
-  ];
 
   return (
     <div class="min-h-screen">
@@ -46,42 +41,33 @@ export default component$(() => {
       </div>
 
       {/* Profile Info */}
-      <div class="p-6">
-        <div class="relative mb-6 flex items-end justify-between">
-          <div class="flex items-end space-x-4">
-            <div class="relative">
+      <div class="p-4 sm:p-6">
+        <div class="relative mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div class="flex items-center sm:items-end gap-4 w-full sm:w-auto">
+            <div class="relative flex-shrink-0">
               <img
                 src={user.avatar}
                 alt={user.name}
                 width={100}
                 height={100}
-                class="h-24 w-24 rounded-full border-2 border-black"
+                class="h-20 w-20 sm:h-24 sm:w-24 rounded-full border-2 border-black"
               />
-              <button class="absolute -right-2 -bottom-2 rounded-full border-2 border-black bg-white p-1">
-                <EditIcon class="h-4 w-4" />
+              <button class="absolute -right-1 -bottom-1 sm:-right-2 sm:-bottom-2 rounded-full border-2 border-black bg-white p-0.5 sm:p-1">
+                <EditIcon class="h-3 w-3 sm:h-4 sm:w-4" />
               </button>
             </div>
-            <div>
-              <h2 class="text-2xl font-bold">{user.name}</h2>
-              <p class="text-gray-600">{user.username}</p>
+            <div class="flex-1 min-w-0">
+              <h2 class="text-xl sm:text-2xl font-bold truncate">{user.name}</h2>
+              <p class="text-gray-600 text-sm sm:text-base truncate">{user.username}</p>
             </div>
           </div>
-          <button class="bg-fresh-eggplant-600 rounded-lg border-2 border-black px-4 py-2 font-medium text-white">
+          <button class="w-full sm:w-auto bg-fresh-eggplant-600 rounded-lg border-2 border-black px-4 py-2 text-sm sm:text-base font-medium text-white">
             Edit Profile
           </button>
         </div>
 
-        <p class="mb-6 text-gray-700">{user.bio}</p>
+        <p class="mb-6 text-gray-700 text-sm sm:text-base">{user.bio}</p>
 
-        {/* Stats */}
-        <div class="mb-6 flex justify-between rounded-xl border-2 border-black bg-white p-4">
-          {stats.map((stat, index) => (
-            <div key={index} class="text-center">
-              <div class="text-lg font-bold">{stat.value}</div>
-              <div class="text-sm text-gray-600">{stat.label}</div>
-            </div>
-          ))}
-        </div>
 
         {/* Info Cards */}
         <div class="space-y-4">

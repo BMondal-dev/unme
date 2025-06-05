@@ -85,7 +85,7 @@ export const NotificationProvider = component$(() => {
   // Return the notifications container and children
   return (
     <>
-      <div class="fixed top-4 right-4 z-50 w-80 space-y-3">
+      <div class="fixed top-4 right-4 z-500 w-80 space-y-3">
         {state.notifications.map((notification) => (
           <div
             key={notification.id}
