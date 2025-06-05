@@ -29,14 +29,14 @@ export default component$(() => {
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold">Profile</h1>
           <div class="flex space-x-2">
-            <IconWrapper 
-              onClick$={() => show('QR Code scanner coming soon!', 'info')}
+            <IconWrapper
+              onClick$={() => show("QR Code scanner coming soon!", "info")}
               class="h-10 w-10 cursor-pointer hover:bg-gray-100"
             >
               <QrCodeIcon class="h-5 w-5" />
             </IconWrapper>
-            <IconWrapper 
-              onClick$={() => show('Settings coming soon!', 'info')}
+            <IconWrapper
+              onClick$={() => show("Settings coming soon!", "info")}
               class="h-10 w-10 cursor-pointer hover:bg-gray-100"
             >
               <SettingsIcon class="h-5 w-5" />
@@ -102,22 +102,28 @@ export default component$(() => {
           <div class="rounded-xl border-2 border-black bg-white p-4">
             <h3 class="mb-2 text-lg font-bold">Settings</h3>
             <div class="space-y-3">
-              <button 
-                onClick$={() => show('Notifications feature coming soon!', 'info')}
+              <button
+                onClick$={() =>
+                  show("Notifications feature coming soon!", "info")
+                }
                 class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
               >
                 <span>Notifications</span>
                 <span>🔔</span>
               </button>
-              <button 
-                onClick$={() => show('Privacy & Security settings coming soon!', 'info')}
+              <button
+                onClick$={() =>
+                  show("Privacy & Security settings coming soon!", "info")
+                }
                 class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
               >
                 <span>Privacy & Security</span>
                 <span>🔒</span>
               </button>
-              <button 
-                onClick$={() => show('Data & Storage settings coming soon!', 'info')}
+              <button
+                onClick$={() =>
+                  show("Data & Storage settings coming soon!", "info")
+                }
                 class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
               >
                 <span>Data & Storage</span>

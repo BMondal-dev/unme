@@ -6,7 +6,6 @@ import { IconWrapper } from "~/components/ui/IconWrapper";
 import type { ChatItem } from "~/types/chat";
 import { useNotification } from "~/components/ui/Notification";
 
-
 // Mock data - in a real app, this would come from an API or store
 const mockChats: ChatItem[] = [
   {
@@ -67,16 +66,16 @@ export default component$(() => {
     <div class="flex h-full flex-col">
       <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Chat</h1>
-        <div class="flex space-x-2">
-          <IconWrapper 
-            onClick$={() => show('Searching coming soon!', 'info')}
-            class="h-10 w-10 cursor-pointer hover:bg-gray-100"
-          >
-            <SearchIcon class="h-6 w-6"/>
-          </IconWrapper>
+          <h1 class="text-2xl font-bold">Chat</h1>
+          <div class="flex space-x-2">
+            <IconWrapper
+              onClick$={() => show("Searching coming soon!", "info")}
+              class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+            >
+              <SearchIcon class="h-6 w-6" />
+            </IconWrapper>
           </div>
-        </div>        
+        </div>
       </div>
 
       <div class="h-full">

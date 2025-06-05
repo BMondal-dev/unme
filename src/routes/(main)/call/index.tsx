@@ -62,16 +62,16 @@ export default component$(() => {
     <div class="flex h-full flex-col">
       <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold">Calls</h1>
-        <div class="flex space-x-2">
-          <IconWrapper 
-            onClick$={() => show('Searching coming soon!', 'info')}
-            class="h-10 w-10 cursor-pointer hover:bg-gray-100"
-          >
-            <SearchIcon class="h-6 w-6"/>
-          </IconWrapper>
+          <h1 class="text-2xl font-bold">Calls</h1>
+          <div class="flex space-x-2">
+            <IconWrapper
+              onClick$={() => show("Searching coming soon!", "info")}
+              class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+            >
+              <SearchIcon class="h-6 w-6" />
+            </IconWrapper>
           </div>
-        </div>        
+        </div>
       </div>
 
       <div class="h-full">
@@ -82,7 +82,7 @@ export default component$(() => {
 
       <div class="fixed right-0 bottom-20 left-0 z-10 mx-auto w-full max-w-[500px] px-4">
         <div class="rounded-lg bg-white p-1 shadow-lg">
-          <NewCallButton 
+          <NewCallButton
             onClick$={() => show("New call feature coming soon!", "info")}
           >
             <PhoneIcon class="h-6 w-6" />
