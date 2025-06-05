@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+import { useNotification } from "~/components/ui/Notification";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { NewCallButton } from "~/components/ui/NewCallButton";
 import { PhoneIcon } from "~/components/icons/PhoneIcon";
@@ -56,8 +57,9 @@ const callLogs: CallLog[] = [
 ];
 
 export default component$(() => {
+  const { show } = useNotification();
   return (
-    <div class="flex h-full flex-col bg-white">
+    <div class="flex h-full flex-col">
       <div class="fixed top-0 right-0 left-0 z-10 mx-auto w-full max-w-[500px] rounded-b-lg border-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
           <h1 class="text-xl font-bold">Calls</h1>
@@ -75,7 +77,9 @@ export default component$(() => {
 
       <div class="fixed right-0 bottom-20 left-0 z-10 mx-auto w-full max-w-[500px] px-4">
         <div class="rounded-lg bg-white p-1 shadow-lg">
-          <NewCallButton>
+          <NewCallButton 
+            onClick$={() => show("New call feature coming soon!", "info")}
+          >
             <PhoneIcon class="h-6 w-6" />
             <span>New Call</span>
           </NewCallButton>

@@ -4,8 +4,10 @@ import { IconWrapper } from "~/components/ui/IconWrapper";
 import { QrCodeIcon } from "~/components/icons/QrCodeIcon";
 import { SettingsIcon } from "~/components/icons/SettingsIcon";
 import { EditIcon } from "~/components/icons/EditIcon";
+import { useNotification } from "~/components/ui/Notification";
 
 export default component$(() => {
+  const { show } = useNotification();
   const user = {
     name: "John Doe",
     username: "@johndoe",
@@ -27,10 +29,16 @@ export default component$(() => {
         <div class="flex items-center justify-between">
           <h1 class="text-2xl font-bold">Profile</h1>
           <div class="flex space-x-2">
-            <IconWrapper class="h-10 w-10">
+            <IconWrapper 
+              onClick$={() => show('QR Code scanner coming soon!', 'info')}
+              class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+            >
               <QrCodeIcon class="h-5 w-5" />
             </IconWrapper>
-            <IconWrapper class="h-10 w-10">
+            <IconWrapper 
+              onClick$={() => show('Settings coming soon!', 'info')}
+              class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+            >
               <SettingsIcon class="h-5 w-5" />
             </IconWrapper>
           </div>
@@ -94,15 +102,24 @@ export default component$(() => {
           <div class="rounded-xl border-2 border-black bg-white p-4">
             <h3 class="mb-2 text-lg font-bold">Settings</h3>
             <div class="space-y-3">
-              <button class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100">
+              <button 
+                onClick$={() => show('Notifications feature coming soon!', 'info')}
+                class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
+              >
                 <span>Notifications</span>
                 <span>🔔</span>
               </button>
-              <button class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100">
+              <button 
+                onClick$={() => show('Privacy & Security settings coming soon!', 'info')}
+                class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
+              >
                 <span>Privacy & Security</span>
                 <span>🔒</span>
               </button>
-              <button class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100">
+              <button 
+                onClick$={() => show('Data & Storage settings coming soon!', 'info')}
+                class="flex w-full items-center justify-between rounded-lg border-2 border-black bg-white px-4 py-3 text-left hover:bg-gray-100"
+              >
                 <span>Data & Storage</span>
                 <span>💾</span>
               </button>
