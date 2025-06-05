@@ -1,4 +1,4 @@
-import { component$, useSignal, $ } from "@builder.io/qwik";
+import { component$, useSignal, $, noSerialize, type NoSerialize } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useNavigate } from "@builder.io/qwik-city";
 import { useNotification } from "~/components/ui/Notification";
@@ -17,22 +17,24 @@ export default component$(() => {
   const otp = useSignal(["", "", "", ""]);
   const name = useSignal("");
   const isLoading = useSignal(false);
-  const profileImage = useSignal<{ file: File | null; previewUrl: string }>({ 
-    file: null, 
-    previewUrl: '' 
-  });
+  const previewUrl = useSignal('');
+  const fileState = useSignal<{ file: NoSerialize<File> | null }>({ file: null });
 
   const handleFileChange = $((event: Event) => {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+      // Store the file with noSerialize to prevent serialization
+      fileState.value = { file: noSerialize(file) };
+      
       const reader = new FileReader();
       
       reader.onload = () => {
-        profileImage.value = {
-          file,
-          previewUrl: reader.result as string
-        };
+        previewUrl.value = reader.result as string;
+      };
+      
+      reader.onerror = () => {
+        console.error('Error reading file');
       };
       
       reader.readAsDataURL(file);
@@ -40,8 +42,20 @@ export default component$(() => {
   });
 
   const triggerFileInput = $(() => {
-    const fileInput = document.getElementById('profile-image-upload') as HTMLInputElement;
-    fileInput?.click();
+    // Create a new input element to ensure the change event fires every time
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+    
+    const handleChange = (e: Event) => {
+      handleFileChange(e);
+      document.body.removeChild(fileInput);
+    };
+    
+    fileInput.addEventListener('change', handleChange, { once: true });
+    document.body.appendChild(fileInput);
+    fileInput.click();
   });
 
   // Handle phone number submission
@@ -84,8 +98,8 @@ export default component$(() => {
     
     // In a real app, you would upload the file here
     const formData = new FormData();
-    if (profileImage.value.file) {
-      formData.append('profileImage', profileImage.value.file);
+    if (fileState.value.file) {
+      formData.append('profileImage', fileState.value.file);
     }
     formData.append('name', name.value);
     
@@ -140,12 +154,12 @@ export default component$(() => {
         <div class="overflow-hidden rounded-2xl border-4 border-black bg-white shadow-[8px_8px_0_0_#000]">
           {/* Progress Steps */}
           <div class="flex border-b-4 border-black">
-            {Object.values(AuthStep).filter(step => typeof step === 'number').map((step) => (
+            {(Object.values(AuthStep).filter(step => typeof step === 'number') as AuthStep[]).map((step, index) => (
               <div 
                 key={step}
                 class={`flex-1 py-3 text-center font-medium ${currentStep.value >= step ? 'bg-fresh-eggplant-600 text-white' : 'bg-gray-100'}`}
               >
-                {step + 1}
+                {index + 1}
               </div>
             ))}
           </div>
@@ -220,9 +234,9 @@ export default component$(() => {
                   class="relative h-24 w-24 cursor-pointer overflow-hidden rounded-full border-2 border-black bg-gray-200"
                   onClick$={triggerFileInput}
                 >
-                  {profileImage.value.previewUrl ? (
+                  {previewUrl.value ? (
                     <img 
-                      src={profileImage.value.previewUrl} 
+                      src={previewUrl.value} 
                       alt="Profile preview" 
                       width={96}
                       height={96}
@@ -248,13 +262,7 @@ export default component$(() => {
                     </svg>
                   </div>
                 </div>
-                <input
-                  id="profile-image-upload"
-                  type="file"
-                  accept="image/*"
-                  class="hidden"
-                  onChange$={handleFileChange}
-                />
+
               </div>
               
               <div class="mb-6">
