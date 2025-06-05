@@ -10,47 +10,47 @@ import { SearchIcon } from "~/components/icons/SearchIcon";
 // Mock call logs data
 const callLogs: CallLog[] = [
   {
-    id: '1',
-    name: 'John Doe',
-    avatar: 'https://i.pravatar.cc/150?img=1',
-    time: '10:30 AM',
-    type: 'incoming',
-    duration: '2:30',
+    id: "1",
+    name: "John Doe",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    time: "10:30 AM",
+    type: "incoming",
+    duration: "2:30",
     isVideo: false,
   },
   {
-    id: '2',
-    name: 'Jane Smith',
-    avatar: 'https://i.pravatar.cc/150?img=2',
-    time: 'Yesterday',
-    type: 'outgoing',
-    duration: '5:12',
+    id: "2",
+    name: "Jane Smith",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    time: "Yesterday",
+    type: "outgoing",
+    duration: "5:12",
     isVideo: true,
   },
   {
-    id: '3',
-    name: 'Alex Johnson',
-    avatar: 'https://i.pravatar.cc/150?img=4',
-    time: 'Yesterday',
-    type: 'missed',
+    id: "3",
+    name: "Alex Johnson",
+    avatar: "https://i.pravatar.cc/150?img=4",
+    time: "Yesterday",
+    type: "missed",
     isVideo: false,
   },
   {
-    id: '4',
-    name: 'Team Standup',
-    avatar: 'https://i.pravatar.cc/150?img=3',
-    time: '6/3/23',
-    type: 'outgoing',
-    duration: '15:45',
+    id: "4",
+    name: "Team Standup",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    time: "6/3/23",
+    type: "outgoing",
+    duration: "15:45",
     isVideo: true,
   },
   {
-    id: '5',
-    name: 'Sarah Wilson',
-    avatar: 'https://i.pravatar.cc/150?img=5',
-    time: '6/2/23',
-    type: 'incoming',
-    duration: '1:22',
+    id: "5",
+    name: "Sarah Wilson",
+    avatar: "https://i.pravatar.cc/150?img=5",
+    time: "6/2/23",
+    type: "incoming",
+    duration: "1:22",
     isVideo: false,
   },
 ];
@@ -73,7 +73,7 @@ export default component$(() => {
         ))}
       </div>
 
-      <div class="fixed bottom-20 left-0 right-0 z-10 mx-auto w-full max-w-[500px] px-4">
+      <div class="fixed right-0 bottom-20 left-0 z-10 mx-auto w-full max-w-[500px] px-4">
         <div class="rounded-lg bg-white p-1 shadow-lg">
           <NewCallButton>
             <PhoneIcon class="h-6 w-6" />

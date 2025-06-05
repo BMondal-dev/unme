@@ -6,7 +6,7 @@ type CallLog = {
   name: string;
   avatar: string;
   time: string;
-  type: 'incoming' | 'outgoing' | 'missed';
+  type: "incoming" | "outgoing" | "missed";
   duration?: string;
   isVideo: boolean;
 };
@@ -17,7 +17,7 @@ interface CallListItemProps {
 
 export const CallListItem = component$<CallListItemProps>(({ call }) => {
   return (
-    <div class="flex cursor-pointer items-center justify-between border-b border-black p-4 transition-colors hover:bg-fresh-eggplant-50">
+    <div class="hover:bg-fresh-eggplant-50 flex cursor-pointer items-center justify-between border-b border-black p-4 transition-colors">
       <div class="flex items-center space-x-3">
         <div class="relative">
           <img
@@ -28,7 +28,7 @@ export const CallListItem = component$<CallListItemProps>(({ call }) => {
             class="h-12 w-12 rounded-full border-2 border-black"
           />
           {call.isVideo && (
-            <div class="absolute -bottom-1 -right-1 rounded-full bg-red-500 p-1">
+            <div class="absolute -right-1 -bottom-1 rounded-full bg-red-500 p-1">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-3 w-3 text-white"
@@ -43,14 +43,14 @@ export const CallListItem = component$<CallListItemProps>(({ call }) => {
         <div>
           <div class="flex items-center space-x-2">
             <span class="font-semibold">{call.name}</span>
-            {call.type === 'missed' && (
+            {call.type === "missed" && (
               <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
                 Missed
               </span>
             )}
           </div>
           <div class="mt-1 flex items-center space-x-2 text-sm text-gray-600">
-            {call.type === 'incoming' && (
+            {call.type === "incoming" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-4 w-4 text-green-500"
@@ -64,7 +64,7 @@ export const CallListItem = component$<CallListItemProps>(({ call }) => {
                 />
               </svg>
             )}
-            {call.type === 'outgoing' && (
+            {call.type === "outgoing" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-4 w-4 text-blue-500"
@@ -78,7 +78,7 @@ export const CallListItem = component$<CallListItemProps>(({ call }) => {
                 />
               </svg>
             )}
-            {call.type === 'missed' && (
+            {call.type === "missed" && (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-4 w-4 text-red-500"

@@ -16,22 +16,24 @@ export default component$(() => {
   const currentPath = location.url.pathname;
 
   const navItems: NavItem[] = [
-    { name: 'Chat', path: '/', icon: ChatIcon },
-    { name: 'Movies', path: '/movies', icon: MovieIcon },
-    { name: 'Call', path: '/call', icon: CallIcon },
-    { name: 'Profile', path: '/profile', icon: ProfileIcon },
+    { name: "Chat", path: "/", icon: ChatIcon },
+    { name: "Movies", path: "/movies", icon: MovieIcon },
+    { name: "Call", path: "/call", icon: CallIcon },
+    { name: "Profile", path: "/profile", icon: ProfileIcon },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return currentPath === '/';
+    if (path === "/") {
+      return currentPath === "/";
     }
     return currentPath.startsWith(path);
   };
 
   const getButtonClasses = (active: boolean) => {
-    const baseClasses = "flex flex-col items-center p-2 transition-all duration-100";
-    const activeClasses = "relative after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-6 after:-translate-x-1/2 after:rounded-full after:bg-fresh-eggplant-600";
+    const baseClasses =
+      "flex flex-col items-center p-2 transition-all duration-100";
+    const activeClasses =
+      "relative after:absolute after:bottom-0 after:left-1/2 after:h-0.5 after:w-6 after:-translate-x-1/2 after:rounded-full after:bg-fresh-eggplant-600";
     const inactiveClasses = "opacity-70 hover:opacity-100";
 
     return `${baseClasses} ${active ? activeClasses : inactiveClasses}`;
