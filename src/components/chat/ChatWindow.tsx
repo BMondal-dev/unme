@@ -1,4 +1,10 @@
-import { component$, useSignal, $, useVisibleTask$ } from "@builder.io/qwik";
+import {
+  component$,
+  useSignal,
+  $,
+  useVisibleTask$,
+  useTask$,
+} from "@builder.io/qwik";
 import type { QRL } from "@builder.io/qwik";
 import { ChatHeader } from "./ChatHeader";
 import { MessageBubble } from "./MessageBubble";
@@ -68,6 +74,16 @@ export const ChatWindow = component$<ChatWindowProps>(
       ];
     });
 
+    useTask$(({ track }) => {
+      track(messages);
+      if (typeof document !== "undefined") {
+        const messageList = document.querySelector(".message-list");
+        if (messageList) {
+          messageList.scrollTop = messageList.scrollHeight;
+        }
+      }
+    });
+
     const handleSendMessage = $((message: string) => {
       const newMessage: Message = {
         id: Date.now().toString(),
@@ -110,7 +126,7 @@ export const ChatWindow = component$<ChatWindowProps>(
           />
         </div>
 
-        <div class="bg-opacity-30 flex-1 space-y-2 overflow-y-auto bg-[#e5ddd5] p-4">
+        <div class="bg-opacity-30 flex-1 space-y-2 overflow-y-auto bg-[#e5ddd5] p-4 message-list">
           {messages.value.map((message, index) => {
             const isCurrentUser = message.sender.id === currentUser.id;
             const showAvatar =
@@ -132,5 +148,5 @@ export const ChatWindow = component$<ChatWindowProps>(
         <ChatFooter onSendMessage$={handleSendMessage} />
       </div>
     );
-  },
+  }
 );
