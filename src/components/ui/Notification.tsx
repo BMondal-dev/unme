@@ -62,24 +62,62 @@ export const NotificationProvider = component$(() => {
   // Return the notifications container and children
   return (
     <>
-      <div class="fixed top-4 right-4 z-50 space-y-2">
+      <div class="fixed top-4 right-4 z-50 space-y-3 w-80">
         {state.notifications.map((notification) => (
           <div 
             key={notification.id} 
-            class={`p-4 rounded-lg shadow-md ${
-              notification.type === 'success' ? 'bg-green-100 text-green-800' : 
-              notification.type === 'error' ? 'bg-red-100 text-red-800' :
-              notification.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-              'bg-blue-100 text-blue-800'
+            class={`p-4 border-2 border-black shadow-[4px_4px_0_0_#000] transition-transform hover:translate-x-[-2px] hover:translate-y-[-2px] ${
+              notification.type === 'success' ? 'bg-green-300' : 
+              notification.type === 'error' ? 'bg-red-300' :
+              notification.type === 'warning' ? 'bg-yellow-300' :
+              'bg-white'
             }`}
           >
-            <div class="flex justify-between items-center">
-              <span>{notification.message}</span>
+            <div class="flex items-start">
+              {/* Icon based on notification type */}
+              <div class="flex-shrink-0 mr-3 mt-0.5">
+                {notification.type === 'success' && (
+                  <div class="h-5 w-5 text-black">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+                {notification.type === 'error' && (
+                  <div class="h-5 w-5 text-black">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                )}
+                {notification.type === 'warning' && (
+                  <div class="h-5 w-5 text-black">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  </div>
+                )}
+                {notification.type === 'info' && (
+                  <div class="h-5 w-5 text-black">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              
+              <div class="flex-1">
+                <p class="text-sm font-bold">{notification.message}</p>
+              </div>
+              
               <button 
                 onClick$={() => remove(notification.id)}
-                class="ml-4 text-gray-500 hover:text-gray-700"
+                class="ml-2 -mt-1 -mr-1 p-1 border-2 border-black hover:bg-black hover:text-white transition-colors"
+                aria-label="Dismiss"
               >
-                ✕
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="square" stroke-linejoin="miter" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
           </div>
