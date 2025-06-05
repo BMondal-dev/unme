@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import { ChatList } from "~/components/chat/ChatList";
 import { SearchIcon } from "~/components/icons/SearchIcon";
 import { IconWrapper } from "~/components/ui/IconWrapper";
@@ -76,3 +77,25 @@ export default component$(() => {
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: "Chats | Unme",
+  meta: [
+    {
+      name: "description",
+      content: "Connect and chat with your friends and teams on Unme",
+    },
+    {
+      property: "og:title",
+      content: "Chats | Unme",
+    },
+    {
+      property: "og:description",
+      content: "Connect and chat with your friends and teams on Unme",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+  ],
+};
