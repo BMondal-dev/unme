@@ -5,6 +5,8 @@ import { SearchIcon } from "~/components/icons/SearchIcon";
 import { IconWrapper } from "~/components/ui/IconWrapper";
 import type { ChatItem } from "~/types/chat";
 import { useNotification } from "~/components/ui/Notification";
+import { NewCallButton } from "~/components/ui/NewCallButton";
+import { ChatIcon } from "~/components/icons/ChatIcon";
 
 // Mock data - in a real app, this would come from an API or store
 const mockChats: ChatItem[] = [
@@ -80,6 +82,17 @@ export default component$(() => {
 
       <div class="h-full">
         <ChatList chats={mockChats} class="h-full" />
+      </div>
+
+      <div class="fixed right-0 bottom-20 left-0 z-10 mx-auto w-full max-w-[500px] px-4">
+        <div class="rounded-lg bg-white p-1 shadow-lg">
+          <NewCallButton
+            onClick$={() => show("New chat feature coming soon!", "info")}
+          >
+            <ChatIcon class="h-6 w-6" />
+            <span>New Chat</span>
+          </NewCallButton>
+        </div>
       </div>
     </div>
   );
