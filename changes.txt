@@ -1,0 +1,189 @@
+diff --git a/src/components/router-head/router-head.tsx b/src/components/router-head/router-head.tsx
+index da5b68f..9aaa3c8 100644
+--- a/src/components/router-head/router-head.tsx
++++ b/src/components/router-head/router-head.tsx
+@@ -13,7 +13,7 @@ export const RouterHead = component$(() => {
+       <title>{head.title}</title>
+ 
+       <link rel="canonical" href={loc.url.href} />
+-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++      <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" />
+       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+ 
+       {head.meta.map((m) => (
+diff --git a/src/global.css b/src/global.css
+index 116a2ba..11b5839 100644
+--- a/src/global.css
++++ b/src/global.css
+@@ -1,82 +1,6 @@
+ @import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&display=swap");
+ @import "tailwindcss";
+ 
+-/* Neumorphic Shadows */
+-/* Neomorphic shadows with smooth transitions */
+-.shadow-neu-sm {
+-  box-shadow: 5px 5px 10px #e0e0e0, -5px -5px 10px #ffffff;
+-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+-}
+-
+-.shadow-neu-sm:hover {
+-  box-shadow: 8px 8px 15px #d0d0d0, -8px -8px 15px #ffffff;
+-}
+-
+-.shadow-neu-sm-green {
+-  box-shadow: 5px 5px 10px #e0f7e0, -5px -5px 10px #f0fff0;
+-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+-}
+-
+-.shadow-neu-sm-green:hover {
+-  box-shadow: 8px 8px 15px #d0e7d0, -8px -8px 15px #f0fff0;
+-}
+-
+-.shadow-neu-sm-red {
+-  box-shadow: 5px 5px 10px #f7e0e0, -5px -5px 10px #fff0f0;
+-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+-}
+-
+-.shadow-neu-sm-red:hover {
+-  box-shadow: 8px 8px 15px #e7d0d0, -8px -8px 15px #fff0f0;
+-}
+-
+-.shadow-neu-sm-yellow {
+-  box-shadow: 5px 5px 10px #f7f7e0, -5px -5px 10px #fffff0;
+-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+-}
+-
+-.shadow-neu-sm-yellow:hover {
+-  box-shadow: 8px 8px 15px #e7e7d0, -8px -8px 15px #fffff0;
+-}
+-
+-.shadow-neu-sm-blue {
+-  box-shadow: 5px 5px 10px #e0e7f7, -5px -5px 10px #f0f7ff;
+-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+-}
+-
+-.shadow-neu-sm-blue:hover {
+-  box-shadow: 8px 8px 15px #d0d7e7, -8px -8px 15px #f0f7ff;
+-}
+-
+-/* Notification Progress Bar Animation */
+-@keyframes progress {
+-  from { width: 100%; }
+-  to { width: 0; }
+-}
+-
+-/* Smooth transitions for notification */
+-.notification-enter {
+-  opacity: 0;
+-  transform: translateX(20px);
+-}
+-
+-.notification-enter-active {
+-  opacity: 1;
+-  transform: translateX(0);
+-  transition: opacity 300ms, transform 300ms;
+-}
+-
+-.notification-exit {
+-  opacity: 1;
+-  transform: translateX(0);
+-}
+-
+-.notification-exit-active {
+-  opacity: 0;
+-  transform: translateX(20px);
+-  transition: opacity 300ms, transform 300ms;
+-}
+-
+ @layer base {
+   :root {
+     --color-bg: #f4ecea;
+diff --git a/src/routes/(main)/call/index.tsx b/src/routes/(main)/call/index.tsx
+index 2a91677..8e27e61 100644
+--- a/src/routes/(main)/call/index.tsx
++++ b/src/routes/(main)/call/index.tsx
+@@ -60,16 +60,21 @@ export default component$(() => {
+   const { show } = useNotification();
+   return (
+     <div class="flex h-full flex-col">
+-      <div class="fixed top-0 right-0 left-0 z-10 mx-auto w-full max-w-[500px] rounded-b-lg border-2 border-black bg-white p-4">
++      <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
+         <div class="flex items-center justify-between">
+-          <h1 class="text-xl font-bold">Calls</h1>
+-          <IconWrapper class="h-8 w-8">
+-            <SearchIcon class="h-6 w-6" />
++        <h1 class="text-2xl font-bold">Calls</h1>
++        <div class="flex space-x-2">
++          <IconWrapper 
++            onClick$={() => show('Searching coming soon!', 'info')}
++            class="h-10 w-10 cursor-pointer hover:bg-gray-100"
++          >
++            <SearchIcon class="h-6 w-6"/>
+           </IconWrapper>
+-        </div>
++          </div>
++        </div>        
+       </div>
+ 
+-      <div class="h-full pt-16">
++      <div class="h-full">
+         {callLogs.map((call) => (
+           <CallListItem key={call.id} call={call} />
+         ))}
+diff --git a/src/routes/(main)/index.tsx b/src/routes/(main)/index.tsx
+index 9c4c643..b80084d 100644
+--- a/src/routes/(main)/index.tsx
++++ b/src/routes/(main)/index.tsx
+@@ -4,6 +4,8 @@ import { ChatList } from "~/components/chat/ChatList";
+ import { SearchIcon } from "~/components/icons/SearchIcon";
+ import { IconWrapper } from "~/components/ui/IconWrapper";
+ import type { ChatItem } from "~/types/chat";
++import { useNotification } from "~/components/ui/Notification";
++
+ 
+ // Mock data - in a real app, this would come from an API or store
+ const mockChats: ChatItem[] = [
+@@ -60,18 +62,24 @@ const mockChats: ChatItem[] = [
+ ];
+ 
+ export default component$(() => {
++  const { show } = useNotification();
+   return (
+     <div class="flex h-full flex-col">
+-      <div class="fixed top-0 right-0 left-0 z-10 mx-auto w-full max-w-[500px] rounded-b-lg border-2 border-black bg-white p-4">
++      <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
+         <div class="flex items-center justify-between">
+-          <h1 class="text-xl font-bold">Chats</h1>
+-          <IconWrapper class="h-8 w-8">
+-            <SearchIcon class="h-6 w-6" />
++        <h1 class="text-2xl font-bold">Chat</h1>
++        <div class="flex space-x-2">
++          <IconWrapper 
++            onClick$={() => show('Searching coming soon!', 'info')}
++            class="h-10 w-10 cursor-pointer hover:bg-gray-100"
++          >
++            <SearchIcon class="h-6 w-6"/>
+           </IconWrapper>
+-        </div>
++          </div>
++        </div>        
+       </div>
+ 
+-      <div class="h-full pt-16">
++      <div class="h-full">
+         <ChatList chats={mockChats} class="h-full" />
+       </div>
+     </div>
+diff --git a/src/routes/(main)/profile/index.tsx b/src/routes/(main)/profile/index.tsx
+index 9f201ab..1d2def2 100644
+--- a/src/routes/(main)/profile/index.tsx
++++ b/src/routes/(main)/profile/index.tsx
+@@ -23,7 +23,7 @@ export default component$(() => {
+   ];
+ 
+   return (
+-    <div class="bg-fresh-eggplant-50 min-h-screen">
++    <div class="min-h-screen">
+       {/* Header */}
+       <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
+         <div class="flex items-center justify-between">

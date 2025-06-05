@@ -4,6 +4,8 @@ import { ChatList } from "~/components/chat/ChatList";
 import { SearchIcon } from "~/components/icons/SearchIcon";
 import { IconWrapper } from "~/components/ui/IconWrapper";
 import type { ChatItem } from "~/types/chat";
+import { useNotification } from "~/components/ui/Notification";
+
 
 // Mock data - in a real app, this would come from an API or store
 const mockChats: ChatItem[] = [
@@ -60,18 +62,24 @@ const mockChats: ChatItem[] = [
 ];
 
 export default component$(() => {
+  const { show } = useNotification();
   return (
     <div class="flex h-full flex-col">
-      <div class="fixed top-0 right-0 left-0 z-10 mx-auto w-full max-w-[500px] rounded-b-lg border-2 border-black bg-white p-4">
+      <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
-          <h1 class="text-xl font-bold">Chats</h1>
-          <IconWrapper class="h-8 w-8">
-            <SearchIcon class="h-6 w-6" />
+        <h1 class="text-2xl font-bold">Chat</h1>
+        <div class="flex space-x-2">
+          <IconWrapper 
+            onClick$={() => show('Searching coming soon!', 'info')}
+            class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+          >
+            <SearchIcon class="h-6 w-6"/>
           </IconWrapper>
-        </div>
+          </div>
+        </div>        
       </div>
 
-      <div class="h-full pt-16">
+      <div class="h-full">
         <ChatList chats={mockChats} class="h-full" />
       </div>
     </div>

@@ -23,7 +23,7 @@ export default component$(() => {
   ];
 
   return (
-    <div class="bg-fresh-eggplant-50 min-h-screen">
+    <div class="min-h-screen">
       {/* Header */}
       <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
