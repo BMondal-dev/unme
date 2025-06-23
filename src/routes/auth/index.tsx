@@ -273,12 +273,10 @@ export default component$(() => {
           currentStep.value = AuthStep.OTPVerification;
           phoneNumber.value = progress.phoneNumber || "";
         } else if (progress.step === AuthStep.ProfileSetup) {
-          // Check if user is authenticated
           if (auth?.currentUser) {
             currentStep.value = AuthStep.ProfileSetup;
             phoneNumber.value = progress.phoneNumber || "";
           } else {
-            // Not authenticated, reset
             currentStep.value = AuthStep.PhoneNumber;
             phoneNumber.value = "";
             localStorage.removeItem(LOCAL_STORAGE_KEY);
