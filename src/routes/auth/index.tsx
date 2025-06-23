@@ -1,7 +1,11 @@
-import { component$, useSignal, $, noSerialize, type NoSerialize } from "@builder.io/qwik";
+import { component$, useSignal, $, noSerialize, type NoSerialize, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useNavigate } from "@builder.io/qwik-city";
 import { useNotification } from "~/components/ui/Notification";
+import { auth, db } from "~/firebase";
+import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+import type { ConfirmationResult } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 enum AuthStep {
   PhoneNumber,
@@ -9,16 +13,38 @@ enum AuthStep {
   ProfileSetup,
 }
 
+const LOCAL_STORAGE_KEY = "unme-auth-progress";
+
+type AuthProgress = {
+  step: AuthStep;
+  phoneNumber?: string;
+  confirmationResult?: any; // You can't serialize this, so just use for step tracking
+};
+
 export default component$(() => {
   const { show } = useNotification();
   const nav = useNavigate();
   const currentStep = useSignal<AuthStep>(AuthStep.PhoneNumber);
   const phoneNumber = useSignal("");
-  const otp = useSignal(["", "", "", ""]);
+  const otp = useSignal(["", "", "", "", "", ""]);
   const name = useSignal("");
   const isLoading = useSignal(false);
   const previewUrl = useSignal('');
   const fileState = useSignal<{ file: NoSerialize<File> | null }>({ file: null });
+  const recaptchaVerifier = useSignal<NoSerialize<RecaptchaVerifier> | null>(null);
+  const confirmationResult = useSignal<NoSerialize<ConfirmationResult> | null>(null);
+
+  useVisibleTask$(() => {
+    if (typeof window !== "undefined" && auth && !recaptchaVerifier.value) {
+      recaptchaVerifier.value = noSerialize(
+        new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          { size: "invisible" }
+        )
+      );
+    }
+  });
 
   const handleFileChange = $((event: Event) => {
     const input = event.target as HTMLInputElement;
@@ -59,79 +85,175 @@ export default component$(() => {
   });
 
   // Handle phone number submission
-  const handlePhoneSubmit = $(() => {
+  const handlePhoneSubmit = $(async () => {
     if (!phoneNumber.value.match(/^\d{10}$/)) {
       show("Please enter a valid 10-digit phone number", "error");
       return;
     }
+    if (!auth) {
+      show("Auth is not available.", "error");
+      return;
+    }
     isLoading.value = true;
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      confirmationResult.value = noSerialize(
+        await signInWithPhoneNumber(
+          auth,
+          "+91" + phoneNumber.value,
+          recaptchaVerifier.value!
+        )
+      );
       isLoading.value = false;
       currentStep.value = AuthStep.OTPVerification;
       show(`OTP sent to +91${phoneNumber.value}`, "success");
-    }, 1000);
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY,
+        JSON.stringify({
+          step: AuthStep.OTPVerification,
+          phoneNumber: phoneNumber.value,
+        })
+      );
+    } catch (err) {
+      isLoading.value = false;
+      show("Failed to send OTP: " + (err as Error).message, "error");
+    }
   });
 
   // Handle OTP submission
-  const handleOTPSubmit = $(() => {
+  const handleOTPSubmit = $(async () => {
     if (otp.value.some(digit => !digit)) {
       show("Please enter all OTP digits", "error");
       return;
     }
-    isLoading.value = true;
-    // Simulate OTP verification
-    setTimeout(() => {
+    if (!confirmationResult.value) {
+      show("Session expired. Please request a new OTP.", "error");
+      currentStep.value = AuthStep.PhoneNumber;
+      phoneNumber.value = "";
+      otp.value = ["", "", "", "", "", ""];
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
       isLoading.value = false;
-      currentStep.value = AuthStep.ProfileSetup;
-    }, 1000);
+      return;
+    }
+    isLoading.value = true;
+    try {
+      await confirmationResult.value.confirm(otp.value.join(""));
+      // Check if user profile exists
+      if (!auth || !db) {
+        show("Auth or DB not available.", "error");
+        isLoading.value = false;
+        return;
+      }
+      const user = auth.currentUser;
+      if (!user) {
+        show("User not authenticated.", "error");
+        isLoading.value = false;
+        return;
+      }
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      isLoading.value = false;
+      if (userDoc.exists()) {
+        // Profile exists, redirect to home
+        show("Welcome back!", "success");
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        nav("/");
+      } else {
+        // No profile, proceed to profile setup
+        currentStep.value = AuthStep.ProfileSetup;
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY,
+          JSON.stringify({
+            step: AuthStep.ProfileSetup,
+            phoneNumber: phoneNumber.value,
+          })
+        );
+      }
+    } catch (err) {
+      isLoading.value = false;
+      show("Invalid OTP: " + (err as Error).message, "error");
+    }
   });
 
   // Handle profile setup
-  const handleProfileSubmit = $(() => {
+  const handleProfileSubmit = $(async () => {
     if (!name.value.trim()) {
       show("Please enter your name", "error");
       return;
     }
-    
-    isLoading.value = true;
-    
-    // In a real app, you would upload the file here
-    const formData = new FormData();
-    if (fileState.value.file) {
-      formData.append('profileImage', fileState.value.file);
+    if (!auth || !db) {
+      show("Auth or DB not available.", "error");
+      return;
     }
-    formData.append('name', name.value);
-    
-    // Simulate API call
-    setTimeout(() => {
+    const user = auth.currentUser;
+    if (!user) {
+      show("User not authenticated.", "error");
+      return;
+    }
+    isLoading.value = true;
+    try {
+      // In a real app, you would upload the file here and get a URL
+      // For now, just store the name (and optionally a placeholder for the image)
+      await setDoc(doc(db, "users", user.uid), {
+        name: name.value,
+        phone: user.phoneNumber,
+        // profileImage: "url-to-image" // Add this if you implement image upload
+      });
       isLoading.value = false;
       show("Profile setup complete!", "success");
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
       nav("/"); // Redirect to home after successful auth
-    }, 1000);
+    } catch (err) {
+      isLoading.value = false;
+      show("Failed to save profile: " + (err as Error).message, "error");
+    }
   });
 
   // Handle OTP input change
   const handleOTPChange = $((index: number, value: string) => {
     if (value && !/^\d$/.test(value)) return;
-    
+
     const newOTP = [...otp.value];
     newOTP[index] = value;
     otp.value = newOTP;
-    
-    // Auto-focus next input
-    if (value && index < 3) {
-      const nextInput = document.getElementById(`otp-${index + 1}`);
+
+    // Auto-focus next input if value entered
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`) as HTMLInputElement;
       if (nextInput) nextInput.focus();
     }
   });
 
-  // Handle backspace in OTP input
+  // Handle OTP input key down
   const handleOTPKeyDown = $((e: KeyboardEvent, index: number) => {
-    if (e.key === 'Backspace' && !otp.value[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
+    const input = e.target as HTMLInputElement;
+    if (e.key === 'Backspace') {
+      if (input.value === "") {
+        if (index > 0) {
+          const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
+          if (prevInput) prevInput.focus();
+        }
+      } else {
+        // Clear the current input
+        const newOTP = [...otp.value];
+        newOTP[index] = "";
+        otp.value = newOTP;
+      }
+    }
+  });
+
+  useVisibleTask$(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const progress: AuthProgress = JSON.parse(saved);
+        if (progress.step === AuthStep.OTPVerification) {
+          currentStep.value = AuthStep.OTPVerification;
+          phoneNumber.value = progress.phoneNumber || "";
+        } else if (progress.step === AuthStep.ProfileSetup) {
+          currentStep.value = AuthStep.ProfileSetup;
+          phoneNumber.value = progress.phoneNumber || "";
+        }
+      } catch {
+        // ignore
       }
     }
   });
@@ -194,8 +316,8 @@ export default component$(() => {
               <h2 class="mb-2 text-xl font-bold">Verify your number</h2>
               <p class="mb-6 text-gray-600">We've sent an SMS with a code to +91{phoneNumber}</p>
               
-              <div class="mb-6 flex justify-between space-x-2">
-                {[0, 1, 2, 3].map((index) => (
+              <div class="mb-6 flex justify-between gap-2 sm:gap-3">
+                {[0, 1, 2, 3, 4, 5].map((index) => (
                   <input
                     key={index}
                     id={`otp-${index}`}
@@ -204,7 +326,10 @@ export default component$(() => {
                     value={otp.value[index]}
                     onInput$={(_, el) => handleOTPChange(index, el.value)}
                     onKeyDown$={(e) => handleOTPKeyDown(e, index)}
-                    class="h-16 w-16 rounded-lg border-2 border-black text-center text-2xl font-bold focus:border-fresh-eggplant-600 focus:outline-none"
+                    class="h-12 w-10 sm:h-14 sm:w-12 rounded-lg border-2 border-black text-center text-xl sm:text-2xl font-bold focus:border-fresh-eggplant-600 focus:outline-none transition-all"
+                    style="letter-spacing: 2px;"
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
                   />
                 ))}
               </div>
@@ -290,6 +415,7 @@ export default component$(() => {
           By continuing, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>
+      <div id="recaptcha-container"></div>
     </div>
   );
 });
