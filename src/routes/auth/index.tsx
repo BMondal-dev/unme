@@ -2,16 +2,17 @@ import { component$, useSignal, $, noSerialize, type NoSerialize, useVisibleTask
 import type { DocumentHead } from "@builder.io/qwik-city";
 import { useNavigate } from "@builder.io/qwik-city";
 import { useNotification } from "~/components/ui/Notification";
-import { auth, db } from "~/firebase";
+import { auth, db, storage } from "~/firebase";
 import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import type { ConfirmationResult } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 enum AuthStep {
   PhoneNumber,
   OTPVerification,
   ProfileSetup,
-}
+} 
 
 const LOCAL_STORAGE_KEY = "unme-auth-progress";
 
@@ -179,8 +180,8 @@ export default component$(() => {
       show("Please enter your name", "error");
       return;
     }
-    if (!auth || !db) {
-      show("Auth or DB not available.", "error");
+    if (!auth || !db || !storage) {
+      show("Auth, DB, or Storage not available.", "error");
       return;
     }
     const user = auth.currentUser;
@@ -189,13 +190,22 @@ export default component$(() => {
       return;
     }
     isLoading.value = true;
+    let profileImageUrl = "";
     try {
-      // In a real app, you would upload the file here and get a URL
-      // For now, just store the name (and optionally a placeholder for the image)
+      // Upload profile image if present
+      if (fileState.value.file) {
+        const file = fileState.value.file as File;
+        console.log(file);
+        const imageRef = ref(storage, `profileImages/${user.uid}`);
+        console.log(imageRef);
+        await uploadBytes(imageRef, file);
+        profileImageUrl = await getDownloadURL(imageRef);
+      }
+      // Save user profile to Firestore
       await setDoc(doc(db, "users", user.uid), {
         name: name.value,
         phone: user.phoneNumber,
-        // profileImage: "url-to-image" // Add this if you implement image upload
+        profileImage: profileImageUrl,
       });
       isLoading.value = false;
       show("Profile setup complete!", "success");
