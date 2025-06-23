@@ -5,7 +5,7 @@ import { useNotification } from "~/components/ui/Notification";
 import { auth, db, storage } from "~/firebase";
 import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import type { ConfirmationResult } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 enum AuthStep {
@@ -34,6 +34,7 @@ export default component$(() => {
   const fileState = useSignal<{ file: NoSerialize<File> | null }>({ file: null });
   const recaptchaVerifier = useSignal<NoSerialize<RecaptchaVerifier> | null>(null);
   const confirmationResult = useSignal<NoSerialize<ConfirmationResult> | null>(null);
+  const userProfile = useSignal<{ name: string; phone: string; profileImage?: string } | null>(null);
 
   useVisibleTask$(() => {
     if (typeof window !== "undefined" && auth && !recaptchaVerifier.value) {
@@ -153,10 +154,13 @@ export default component$(() => {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       isLoading.value = false;
       if (userDoc.exists()) {
-        // Profile exists, redirect to home
-        show("Welcome back!", "success");
+        userProfile.value = userDoc.data() as any;
+        show("Welcome back! You can update your profile or continue.", "success");
         localStorage.removeItem(LOCAL_STORAGE_KEY);
-        nav("/");
+        // Do not redirect, show update UI
+        currentStep.value = AuthStep.ProfileSetup;
+        name.value = userProfile.value?.name || "";
+        previewUrl.value = userProfile.value?.profileImage || "";
       } else {
         // No profile, proceed to profile setup
         currentStep.value = AuthStep.ProfileSetup;
@@ -195,18 +199,28 @@ export default component$(() => {
       // Upload profile image if present
       if (fileState.value.file) {
         const file = fileState.value.file as File;
-        console.log(file);
         const imageRef = ref(storage, `profileImages/${user.uid}`);
-        console.log(imageRef);
         await uploadBytes(imageRef, file);
         profileImageUrl = await getDownloadURL(imageRef);
       }
-      // Save user profile to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        name: name.value,
-        phone: user.phoneNumber,
-        profileImage: profileImageUrl,
-      });
+      // Check if user doc exists
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        // Update existing user doc
+        await updateDoc(userDocRef, {
+          name: name.value,
+          phone: user.phoneNumber,
+          profileImage: profileImageUrl,
+        });
+      } else {
+        // Create new user doc
+        await setDoc(userDocRef, {
+          name: name.value,
+          phone: user.phoneNumber,
+          profileImage: profileImageUrl,
+        });
+      }
       isLoading.value = false;
       show("Profile setup complete!", "success");
       localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -259,8 +273,16 @@ export default component$(() => {
           currentStep.value = AuthStep.OTPVerification;
           phoneNumber.value = progress.phoneNumber || "";
         } else if (progress.step === AuthStep.ProfileSetup) {
-          currentStep.value = AuthStep.ProfileSetup;
-          phoneNumber.value = progress.phoneNumber || "";
+          // Check if user is authenticated
+          if (auth?.currentUser) {
+            currentStep.value = AuthStep.ProfileSetup;
+            phoneNumber.value = progress.phoneNumber || "";
+          } else {
+            // Not authenticated, reset
+            currentStep.value = AuthStep.PhoneNumber;
+            phoneNumber.value = "";
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+          }
         }
       } catch {
         // ignore
@@ -359,11 +381,10 @@ export default component$(() => {
           )}
 
           {/* Profile Setup Step */}
-          {currentStep.value === AuthStep.ProfileSetup && (
+          {userProfile.value && currentStep.value === AuthStep.ProfileSetup && (
             <div class="p-6">
-              <h2 class="mb-2 text-xl font-bold">Profile information</h2>
-              <p class="mb-6 text-gray-600">Enter your name and add a profile picture</p>
-              
+              <h2 class="mb-2 text-xl font-bold">Welcome back!</h2>
+              <p class="mb-6 text-gray-600">You can update your profile or continue.</p>
               <div class="mb-6 flex justify-center">
                 <div 
                   class="relative h-24 w-24 cursor-pointer overflow-hidden rounded-full border-2 border-black bg-gray-200"
@@ -397,9 +418,7 @@ export default component$(() => {
                     </svg>
                   </div>
                 </div>
-
               </div>
-              
               <div class="mb-6">
                 <label class="mb-1 block font-medium">Your name</label>
                 <input
@@ -409,14 +428,21 @@ export default component$(() => {
                   class="w-full rounded-lg border-2 border-black p-3 focus:border-fresh-eggplant-600 focus:outline-none"
                 />
               </div>
-              
-              <button
-                onClick$={handleProfileSubmit}
-                disabled={isLoading.value}
-                class="w-full rounded-lg border-2 border-black bg-fresh-eggplant-600 py-3 font-bold text-white hover:bg-fresh-eggplant-700 disabled:opacity-50"
-              >
-                {isLoading.value ? 'Setting up...' : 'Continue'}
-              </button>
+              <div class="flex gap-2">
+                <button
+                  onClick$={handleProfileSubmit}
+                  disabled={isLoading.value}
+                  class="flex-1 rounded-lg border-2 border-black bg-fresh-eggplant-600 py-3 font-bold text-white hover:bg-fresh-eggplant-700 disabled:opacity-50"
+                >
+                  {isLoading.value ? 'Saving...' : 'Update'}
+                </button>
+                <button
+                  onClick$={() => nav("/")}
+                  class="flex-1 rounded-lg border-2 border-black bg-gray-200 py-3 font-bold text-black hover:bg-gray-300"
+                >
+                  Continue
+                </button>
+              </div>
             </div>
           )}
         </div>
