@@ -3,8 +3,6 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { useNavigate } from "@builder.io/qwik-city";
 import { useNotification } from "~/components/ui/Notification";
 import { auth, db, storage } from "~/firebase";
-import { signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
-import type { ConfirmationResult } from "firebase/auth";
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -32,12 +30,13 @@ export default component$(() => {
   const isLoading = useSignal(false);
   const previewUrl = useSignal('');
   const fileState = useSignal<{ file: NoSerialize<File> | null }>({ file: null });
-  const recaptchaVerifier = useSignal<NoSerialize<RecaptchaVerifier> | null>(null);
-  const confirmationResult = useSignal<NoSerialize<ConfirmationResult> | null>(null);
+  const recaptchaVerifier = useSignal<NoSerialize<any> | null>(null);
+  const confirmationResult = useSignal<NoSerialize<any> | null>(null);
   const userProfile = useSignal<{ name: string; phone: string; profileImage?: string } | null>(null);
 
-  useVisibleTask$(() => {
+  useVisibleTask$(async () => {
     if (typeof window !== "undefined" && auth && !recaptchaVerifier.value) {
+      const { RecaptchaVerifier } = await import("firebase/auth");
       recaptchaVerifier.value = noSerialize(
         new RecaptchaVerifier(
           auth,
@@ -98,6 +97,7 @@ export default component$(() => {
     }
     isLoading.value = true;
     try {
+      const { signInWithPhoneNumber } = await import("firebase/auth");
       confirmationResult.value = noSerialize(
         await signInWithPhoneNumber(
           auth,
