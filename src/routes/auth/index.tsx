@@ -33,6 +33,7 @@ export default component$(() => {
   const recaptchaVerifier = useSignal<NoSerialize<any> | null>(null);
   const confirmationResult = useSignal<NoSerialize<any> | null>(null);
   const userProfile = useSignal<{ name: string; phone: string; profileImage?: string } | null>(null);
+  const authReady = useSignal(false);
 
   useVisibleTask$(async () => {
     if (typeof window !== "undefined" && auth && !recaptchaVerifier.value) {
@@ -265,6 +266,16 @@ export default component$(() => {
   });
 
   useVisibleTask$(() => {
+    if (typeof window !== "undefined" && auth) {
+      const unsubscribe = auth.onAuthStateChanged(() => {
+        authReady.value = true;
+      });
+      return () => unsubscribe();
+    }
+  });
+
+  useVisibleTask$(() => {
+    if (!authReady.value) return;
     const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (saved) {
       try {
@@ -379,7 +390,7 @@ export default component$(() => {
           )}
 
           {/* Profile Setup Step */}
-          {userProfile.value && currentStep.value === AuthStep.ProfileSetup && (
+          {currentStep.value === AuthStep.ProfileSetup && (
             <div class="p-6">
               <h2 class="mb-2 text-xl font-bold">Welcome back!</h2>
               <p class="mb-6 text-gray-600">You can update your profile or continue.</p>
@@ -427,19 +438,31 @@ export default component$(() => {
                 />
               </div>
               <div class="flex gap-2">
-                <button
-                  onClick$={handleProfileSubmit}
-                  disabled={isLoading.value}
-                  class="flex-1 rounded-lg border-2 border-black bg-fresh-eggplant-600 py-3 font-bold text-white hover:bg-fresh-eggplant-700 disabled:opacity-50"
-                >
-                  {isLoading.value ? 'Saving...' : 'Update'}
-                </button>
-                <button
-                  onClick$={() => nav("/")}
-                  class="flex-1 rounded-lg border-2 border-black bg-gray-200 py-3 font-bold text-black hover:bg-gray-300"
-                >
-                  Continue
-                </button>
+                {userProfile.value ? (
+                  <>
+                    <button
+                      onClick$={handleProfileSubmit}
+                      disabled={isLoading.value}
+                      class="flex-1 rounded-lg border-2 border-black bg-fresh-eggplant-600 py-3 font-bold text-white hover:bg-fresh-eggplant-700 disabled:opacity-50"
+                    >
+                      {isLoading.value ? 'Saving...' : 'Update'}
+                    </button>
+                    <button
+                      onClick$={() => nav("/")}
+                      class="flex-1 rounded-lg border-2 border-black bg-gray-200 py-3 font-bold text-black hover:bg-gray-300"
+                    >
+                      Continue
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick$={handleProfileSubmit}
+                    disabled={isLoading.value}
+                    class="w-full rounded-lg border-2 border-black bg-fresh-eggplant-600 py-3 font-bold text-white hover:bg-fresh-eggplant-700 disabled:opacity-50"
+                  >
+                    {isLoading.value ? 'Saving...' : 'Create Profile'}
+                  </button>
+                )}
               </div>
             </div>
           )}

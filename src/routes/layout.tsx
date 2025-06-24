@@ -1,8 +1,26 @@
-import { component$, Slot } from "@builder.io/qwik";
+import { component$, Slot, useVisibleTask$ } from "@builder.io/qwik";
 import { NotificationProvider } from "~/components/ui/Notification";
+import { useLocation, useNavigate } from "@builder.io/qwik-city";
+import { auth } from "~/firebase";
 
 // Main layout component
 export default component$(() => {
+  const loc = useLocation();
+  const nav = useNavigate();
+
+  useVisibleTask$(() => {
+    if (typeof window === "undefined" || !auth) return;
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      const isAuthRoute = loc.url.pathname.startsWith("/auth");
+      if (!user && !isAuthRoute) {
+        nav("/auth", { replaceState: true });
+      } else if (user && isAuthRoute) {
+        nav("/", { replaceState: true });
+      }
+    });
+    return () => unsubscribe();
+  });
+
   return (
     <NotificationProvider>
       <div class="flex min-h-screen flex-col">
