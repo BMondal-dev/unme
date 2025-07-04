@@ -41,6 +41,10 @@ export const ChatList = component$<ChatListProps>(({ chats: initialChats, search
   // Load chats from Firestore
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
+    if (typeof window === "undefined") {
+      // Skip SSR/server execution
+      return;
+    }
     if (!auth.currentUser) {
       error.value = "User not authenticated";
       isLoading.value = false;

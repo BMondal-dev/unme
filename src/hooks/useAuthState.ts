@@ -1,10 +1,10 @@
 // src/hooks/useAuthState.ts
-import { useSignal, useVisibleTask$, noSerialize } from '@builder.io/qwik';
+import { useSignal, useVisibleTask$, noSerialize, type NoSerialize } from '@builder.io/qwik';
 import { auth } from '~/firebase';
 import { User } from 'firebase/auth';
 
 export function useAuthState() {
-  const user = useSignal<User | null>(null);
+  const user = useSignal<NoSerialize<User> | null>(null);
   const authReady = useSignal(false);
   const isLoading = useSignal(true);
   const error = useSignal<Error | null>(null);
