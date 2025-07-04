@@ -4,6 +4,7 @@ import { MovieIcon } from "~/components/icons/MovieIcon";
 import { ProfileIcon } from "~/components/icons/ProfileIcon";
 import { CallIcon } from "~/components/icons/CallIcon";
 import { ChatIcon } from "~/components/icons/ChatIcon";
+import { NotificationProvider } from "~/components/ui/Notification";
 
 interface NavItem {
   name: string;
@@ -40,27 +41,29 @@ export default component$(() => {
   };
 
   return (
-    <div class="min-h-screen bg-gray-50">
-      <div class="pb-16">
-        <Slot />
-      </div>
+    <NotificationProvider>
+      <div class="min-h-screen bg-gray-50">
+        <div class="pb-16">
+          <Slot />
+        </div>
 
-      <div class="fixed right-0 bottom-0 left-0 z-50 border-t-2 border-black bg-white">
-        <div class="mx-auto max-w-[500px] bg-white">
-          <nav class="flex items-center justify-around p-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={item.path}
-                class={getButtonClasses(isActive(item.path))}
-              >
-                <item.icon class="mb-1 h-6 w-6" />
-                <span class="text-xs">{item.name}</span>
-              </Link>
-            ))}
-          </nav>
+        <div class="fixed right-0 bottom-0 left-0 z-50 border-t-2 border-black bg-white">
+          <div class="mx-auto max-w-[500px] bg-white">
+            <nav class="flex items-center justify-around p-2">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  class={getButtonClasses(isActive(item.path))}
+                >
+                  <item.icon class="mb-1 h-6 w-6" />
+                  <span class="text-xs">{item.name}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
       </div>
-    </div>
+    </NotificationProvider>
   );
 });

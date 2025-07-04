@@ -1,5 +1,5 @@
 // src/hooks/useAuthState.ts
-import { useSignal, useVisibleTask$ } from '@builder.io/qwik';
+import { useSignal, useVisibleTask$, noSerialize } from '@builder.io/qwik';
 import { auth } from '~/firebase';
 import { User } from 'firebase/auth';
 
@@ -23,7 +23,7 @@ export function useAuthState() {
     const unsubscribe = auth.onAuthStateChanged(
       (authUser: User | null) => {
         console.log('Auth state changed:', authUser ? 'User authenticated' : 'No user');
-        user.value = authUser;
+        user.value = authUser ? noSerialize(authUser) : null;
         authReady.value = true;
         isLoading.value = false;
       },
