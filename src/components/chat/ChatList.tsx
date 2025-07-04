@@ -1,9 +1,9 @@
-import { component$, $, useVisibleTask$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, $, useSignal, useTask$, useVisibleTask$ } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 import type { ChatItem } from "../../types/chat";
 import { ChatListItem } from "./ChatListItem";
 import { auth, db } from "~/firebase";
-import { collection, query, where, onSnapshot, getDocs, orderBy, limit, startAt, endAt } from "firebase/firestore";
+import { collection, query, where, onSnapshot, getDocs, orderBy, limit } from "firebase/firestore";
 
 interface ChatListProps {
   chats?: ChatItem[];
@@ -39,6 +39,7 @@ export const ChatList = component$<ChatListProps>(({ chats: initialChats, search
   });
 
   // Load chats from Firestore
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     if (!auth.currentUser) {
       error.value = "User not authenticated";

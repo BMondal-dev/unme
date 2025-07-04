@@ -9,6 +9,7 @@ export function useAuthState() {
   const isLoading = useSignal(true);
   const error = useSignal<Error | null>(null);
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     console.log('Setting up auth state listener');
     

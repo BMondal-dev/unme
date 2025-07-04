@@ -163,6 +163,8 @@ export default component$(() => {
                     src={user.avatar}
                     alt={user.name}
                     class="h-12 w-12 rounded-full border-2 border-black"
+                    width={48}
+                    height={48}
                   />
                   <div class="ml-3 flex-1">
                     <h3 class="font-semibold">{user.name}</h3>

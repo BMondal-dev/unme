@@ -6,11 +6,11 @@ import { IconWrapper } from "~/components/ui/IconWrapper";
 import { useNotification } from "~/components/ui/Notification";
 import { NewCallButton } from "~/components/ui/NewCallButton";
 import { ChatIcon } from "~/components/icons/ChatIcon";
-import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { $, useSignal } from "@builder.io/qwik";
 import { useNavigate } from "@builder.io/qwik-city";
 
 export default component$(() => {
-  const { show } = useNotification();
+  useNotification();
   const nav = useNavigate();
   const searchQuery = useSignal("");
   const isSearching = useSignal(false);

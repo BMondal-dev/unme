@@ -9,6 +9,7 @@ export default component$(() => {
   const loc = useLocation();
   const nav = useNavigate();
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     if (typeof window === "undefined" || !auth) return;
     const unsubscribe = auth.onAuthStateChanged(async (user: User | null) => {

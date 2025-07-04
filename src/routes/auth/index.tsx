@@ -28,6 +28,7 @@ export default component$(() => {
   const userProfile = useSignal<{ name: string; phone: string; profileImage?: string } | null>(null);
   const authReady = useSignal(false);
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async () => {
     if (typeof window !== "undefined" && auth && !recaptchaVerifier.value) {
       const { RecaptchaVerifier } = await import("firebase/auth");
@@ -239,6 +240,7 @@ export default component$(() => {
     }
   });
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     if (typeof window !== "undefined" && auth) {
       const unsubscribe = auth.onAuthStateChanged(() => {

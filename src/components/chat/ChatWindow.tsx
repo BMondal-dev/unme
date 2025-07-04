@@ -2,8 +2,8 @@ import {
   component$,
   useSignal,
   $,
-  useVisibleTask$,
   useTask$,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import type { QRL } from "@builder.io/qwik";
 import { ChatHeader } from "./ChatHeader";
@@ -12,7 +12,7 @@ import { ChatFooter } from "./ChatFooter";
 import type { ChatItem, Message } from "../../types/chat";
 import { useWebSocket } from "~/hooks/useWebSocket";
 import { auth, db } from "~/firebase";
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface ChatWindowProps {
   chat: ChatItem;
@@ -38,6 +38,7 @@ export const ChatWindow = component$<ChatWindowProps>(
     const currentUser = useSignal<User | null>(null);
 
     // Set up current user and connect to WebSocket
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(async () => {
       if (!auth.currentUser) {
         console.error("No authenticated user");
@@ -83,6 +84,7 @@ export const ChatWindow = component$<ChatWindowProps>(
     });
     
     // Load chat messages from Firestore
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(async () => {
       if (!auth.currentUser) return;
       

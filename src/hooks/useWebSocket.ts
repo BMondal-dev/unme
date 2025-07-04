@@ -1,6 +1,6 @@
 // src/hooks/useWebSocket.ts
-import { useVisibleTask$, $ } from '@builder.io/qwik';
-import { useSignal } from '@builder.io/qwik';
+import { $ } from '@builder.io/qwik';
+import { useSignal, useVisibleTask$ } from '@builder.io/qwik';
 import { auth } from '~/firebase';
 import * as CryptoJS from 'crypto-js';
 
@@ -14,7 +14,8 @@ export function useWebSocket() {
   const clientEncryptionKey = useSignal<string>('');
 
   // Initialize client encryption key
-  useVisibleTask$(({ track }) => {
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track }: { track: any }) => {
     track(() => auth.currentUser);
     if (auth.currentUser) {
       // Generate or retrieve a unique key for this user
