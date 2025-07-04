@@ -4,6 +4,7 @@ export interface User {
   name: string;
   avatar: string;
   isOnline?: boolean;
+  phoneNumber?: string | null;
 }
 
 export interface Message {
@@ -23,6 +24,7 @@ export interface ChatItem extends User {
   status?: string;
   lastSeen?: string;
   messages?: Message[];
+  phoneNumber?: string | null;
 }
 
 export interface MessageBubbleProps {

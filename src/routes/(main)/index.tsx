@@ -3,91 +3,73 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 import { ChatList } from "~/components/chat/ChatList";
 import { SearchIcon } from "~/components/icons/SearchIcon";
 import { IconWrapper } from "~/components/ui/IconWrapper";
-import type { ChatItem } from "~/types/chat";
 import { useNotification } from "~/components/ui/Notification";
 import { NewCallButton } from "~/components/ui/NewCallButton";
 import { ChatIcon } from "~/components/icons/ChatIcon";
-
-// Mock data - in a real app, this would come from an API or store
-const mockChats: ChatItem[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    lastMessage: "Hey, how are you doing?",
-    time: "10:30 AM",
-    unreadCount: 2,
-    isOnline: true,
-    status: "Hey there! I'm using Unme Chat",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    lastMessage: "Let's meet tomorrow",
-    time: "Yesterday",
-    unreadCount: 0,
-    isOnline: true,
-    status: "Available",
-  },
-  {
-    id: "3",
-    name: "Team Group",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    lastMessage: "Meeting at 3 PM",
-    time: "Yesterday",
-    unreadCount: 5,
-    isOnline: false,
-    lastSeen: "Last seen today at 2:30 PM",
-  },
-  {
-    id: "4",
-    name: "Alex Johnson",
-    avatar: "https://i.pravatar.cc/150?img=4",
-    lastMessage: "Check out this cool project!",
-    time: "2h ago",
-    unreadCount: 0,
-    isOnline: true,
-    status: "Coding something awesome",
-  },
-  {
-    id: "5",
-    name: "Sarah Wilson",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    lastMessage: "Let's schedule a call",
-    time: "Yesterday",
-    unreadCount: 0,
-    isOnline: true,
-    status: "Available",
-  },
-];
+import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { useNavigate } from "@builder.io/qwik-city";
 
 export default component$(() => {
   const { show } = useNotification();
+  const nav = useNavigate();
+  const searchQuery = useSignal("");
+  const isSearching = useSignal(false);
+  
+  const handleNewChat = $(() => {
+    nav("/new-chat");
+  });
+  
+  const handleSearch = $(() => {
+    isSearching.value = !isSearching.value;
+    if (!isSearching.value) {
+      searchQuery.value = "";
+    }
+  });
+
   return (
     <div class="flex h-full flex-col">
       <div class="sticky top-0 z-10 border-b-2 border-black bg-white p-4">
         <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold">Chat</h1>
-          <div class="flex space-x-2">
-            <IconWrapper
-              onClick$={() => show("Searching coming soon!", "info")}
-              class="h-10 w-10 cursor-pointer hover:bg-gray-100"
-            >
-              <SearchIcon class="h-6 w-6" />
-            </IconWrapper>
-          </div>
+          {!isSearching.value ? (
+            <>
+              <h1 class="text-2xl font-bold">Chat</h1>
+              <div class="flex space-x-2">
+                <IconWrapper
+                  onClick$={handleSearch}
+                  class="h-10 w-10 cursor-pointer hover:bg-gray-100"
+                >
+                  <SearchIcon class="h-6 w-6" />
+                </IconWrapper>
+              </div>
+            </>
+          ) : (
+            <div class="flex w-full items-center gap-2">
+              <button 
+                onClick$={handleSearch}
+                class="text-gray-500"
+              >
+                <span class="text-xl">&larr;</span>
+              </button>
+              <input
+                type="text"
+                placeholder="Search for contacts..."
+                value={searchQuery.value}
+                onInput$={(e) => (searchQuery.value = (e.target as HTMLInputElement).value)}
+                class="w-full rounded-lg border-2 border-gray-300 px-3 py-2 focus:border-primary focus:outline-none"
+              />
+            </div>
+          )}
         </div>
       </div>
 
       <div class="h-full">
-        <ChatList chats={mockChats} class="h-full" />
+        <ChatList searchQuery={searchQuery.value} class="h-full" />
       </div>
 
       <div class="fixed right-0 bottom-20 left-0 z-10 mx-auto w-full max-w-[500px] px-4">
         <div class="rounded-lg bg-white p-1 shadow-lg">
           <NewCallButton
-            onClick$={() => show("New chat feature coming soon!", "info")}
+            onClick$={handleNewChat}
           >
             <ChatIcon class="h-6 w-6" />
             <span>New Chat</span>

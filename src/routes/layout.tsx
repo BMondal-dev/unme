@@ -10,12 +10,23 @@ export default component$(() => {
 
   useVisibleTask$(() => {
     if (typeof window === "undefined" || !auth) return;
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       const isAuthRoute = loc.url.pathname.startsWith("/auth");
       if (!user && !isAuthRoute) {
         nav("/auth", { replaceState: true });
       } else if (user && isAuthRoute) {
-        nav("/", { replaceState: true });
+        // Only redirect if profile is complete
+        const profileCompleted = await (async () => {
+          try {
+            const { getDoc, doc } = await import('firebase/firestore');
+            const { db } = await import('~/firebase');
+            const profileSnap = await getDoc(doc(db, 'users', user.uid));
+            return profileSnap.exists() && !!profileSnap.data().username;
+          } catch {
+            return false;
+          }
+        })();
+        if (profileCompleted) nav("/", { replaceState: true });
       }
     });
     return () => unsubscribe();

@@ -12,13 +12,6 @@ enum AuthStep {
   ProfileSetup,
 } 
 
-const LOCAL_STORAGE_KEY = "unme-auth-progress";
-
-type AuthProgress = {
-  step: AuthStep;
-  phoneNumber?: string;
-  confirmationResult?: any; // You can't serialize this, so just use for step tracking
-};
 
 export default component$(() => {
   const { show } = useNotification();
@@ -109,13 +102,6 @@ export default component$(() => {
       isLoading.value = false;
       currentStep.value = AuthStep.OTPVerification;
       show(`OTP sent to +91${phoneNumber.value}`, "success");
-      localStorage.setItem(
-        LOCAL_STORAGE_KEY,
-        JSON.stringify({
-          step: AuthStep.OTPVerification,
-          phoneNumber: phoneNumber.value,
-        })
-      );
     } catch (err) {
       isLoading.value = false;
       show("Failed to send OTP: " + (err as Error).message, "error");
@@ -133,7 +119,6 @@ export default component$(() => {
       currentStep.value = AuthStep.PhoneNumber;
       phoneNumber.value = "";
       otp.value = ["", "", "", "", "", ""];
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
       isLoading.value = false;
       return;
     }
@@ -157,21 +142,11 @@ export default component$(() => {
       if (userDoc.exists()) {
         userProfile.value = userDoc.data() as any;
         show("Welcome back! You can update your profile or continue.", "success");
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        // Do not redirect, show update UI
         currentStep.value = AuthStep.ProfileSetup;
         name.value = userProfile.value?.name || "";
         previewUrl.value = userProfile.value?.profileImage || "";
       } else {
-        // No profile, proceed to profile setup
         currentStep.value = AuthStep.ProfileSetup;
-        localStorage.setItem(
-          LOCAL_STORAGE_KEY,
-          JSON.stringify({
-            step: AuthStep.ProfileSetup,
-            phoneNumber: phoneNumber.value,
-          })
-        );
       }
     } catch (err) {
       isLoading.value = false;
@@ -224,8 +199,7 @@ export default component$(() => {
       }
       isLoading.value = false;
       show("Profile setup complete!", "success");
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-      nav("/"); // Redirect to home after successful auth
+      nav("/");
     } catch (err) {
       isLoading.value = false;
       show("Failed to save profile: " + (err as Error).message, "error");
@@ -271,31 +245,6 @@ export default component$(() => {
         authReady.value = true;
       });
       return () => unsubscribe();
-    }
-  });
-
-  useVisibleTask$(() => {
-    if (!authReady.value) return;
-    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (saved) {
-      try {
-        const progress: AuthProgress = JSON.parse(saved);
-        if (progress.step === AuthStep.OTPVerification) {
-          currentStep.value = AuthStep.OTPVerification;
-          phoneNumber.value = progress.phoneNumber || "";
-        } else if (progress.step === AuthStep.ProfileSetup) {
-          if (auth?.currentUser) {
-            currentStep.value = AuthStep.ProfileSetup;
-            phoneNumber.value = progress.phoneNumber || "";
-          } else {
-            currentStep.value = AuthStep.PhoneNumber;
-            phoneNumber.value = "";
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
-          }
-        }
-      } catch {
-        // ignore
-      }
     }
   });
 
