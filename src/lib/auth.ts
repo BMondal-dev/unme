@@ -8,8 +8,9 @@ import { auth } from '~/firebase';
  */
 export async function verifyToken(token: string): Promise<string> {
   try {
-    const decodedToken = await auth.verifyIdToken(token);
-    return decodedToken.uid;
+    // const decodedToken = await auth.verifyIdToken(token);
+    // return decodedToken.uid;
+    throw new Error('verifyIdToken is not available in this Firebase JS SDK');
   } catch (error) {
     console.error('Error verifying token:', error);
     throw new Error('Invalid authentication token');

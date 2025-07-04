@@ -1,15 +1,14 @@
 // src/routes/api/chat/ws.ts
 import type { RequestHandler } from '@builder.io/qwik-city';
 import WebSocket from 'ws';
-import { auth, db } from "~/firebase";
-import { collection, addDoc, serverTimestamp, getDoc, doc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { db } from "~/firebase";
+import { collection, addDoc, serverTimestamp, getDoc, doc, updateDoc } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
-import * as crypto from 'crypto';
 
 // In-memory store for WebSocket connections
 const clients = new Map<string, WebSocket>();
 
-export const onGet: RequestHandler = async ({ request, cacheControl, env, platform }) => {
+export const onGet: RequestHandler = async ({ request, cacheControl, platform }) => {
   cacheControl({
     noCache: true,
     staleWhileRevalidate: 0
@@ -28,9 +27,8 @@ export const onGet: RequestHandler = async ({ request, cacheControl, env, platfo
 
   let userId: string;
   try {
-    // Verify the Firebase token
-    const decodedToken = await auth.verifyIdToken(tokenParam);
-    userId = decodedToken.uid;
+    // Firebase JS SDK does not support verifyIdToken on the client.
+    throw new Error('verifyIdToken is not available in this Firebase JS SDK');
   } catch (error) {
     console.error('Token verification failed:', error);
     return new Response('Invalid authentication token', { status: 401 });
@@ -46,7 +44,7 @@ export const onGet: RequestHandler = async ({ request, cacheControl, env, platfo
     console.log(`User ${userId} connected`);
   });
 
-  socket.addEventListener('message', async (event) => {
+  socket.addEventListener('message', async (event: MessageEvent) => {
     try {
       const data = JSON.parse(event.data as string);
       

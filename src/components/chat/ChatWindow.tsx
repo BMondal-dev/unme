@@ -48,7 +48,7 @@ export const ChatWindow = component$<ChatWindowProps>(
       currentUser.value = {
         id: auth.currentUser.uid,
         name: auth.currentUser.displayName || "You",
-        avatar: auth.currentUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth.currentUser.uid}`,
+        avatar: auth.currentUser?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth.currentUser?.uid}`,
       };
       
       // Connect to WebSocket server
@@ -125,7 +125,7 @@ export const ChatWindow = component$<ChatWindowProps>(
                 id: data.senderId,
                 name: data.senderId === auth.currentUser?.uid ? "You" : chat.name,
                 avatar: data.senderId === auth.currentUser?.uid 
-                  ? (auth.currentUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth.currentUser.uid}`)
+                  ? (auth.currentUser?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth.currentUser?.uid}`)
                   : chat.avatar,
               },
             });
@@ -212,8 +212,11 @@ export const ChatWindow = component$<ChatWindowProps>(
     return (
       <div class={`flex h-full flex-col overflow-hidden ${className}`}>
         <ChatHeader
-          chat={chat}
-          onClose$={onClose$}
+          user={chat}
+          onBack$={onClose$}
+          onCall$={$(() => {})}
+          onVideoCall$={$(() => {})}
+          onViewProfile$={$(() => {})}
         />
         
         <div class="message-list flex-1 overflow-y-auto p-4">
@@ -262,58 +265,6 @@ export const ChatWindow = component$<ChatWindowProps>(
               : "Connection issue. Messages will be saved but not delivered instantly."}
           </div>
         )}
-      </div>
-    );
-  }
-);
-
-    const handleCall = $(() => {
-      console.log("Voice call requested");
-      // Implement call functionality
-    });
-
-    const handleVideoCall = $(() => {
-      console.log("Video call requested");
-      // Implement video call functionality
-    });
-
-    const handleViewProfile = $(() => {
-      console.log("View profile", chat.id);
-      // Implement view profile functionality
-    });
-
-    return (
-      <div class={`flex h-screen flex-col ${className}`}>
-        <div class="border-b-2 border-black bg-white">
-          <ChatHeader
-            user={chat}
-            onBack$={onClose$}
-            onCall$={handleCall}
-            onVideoCall$={handleVideoCall}
-            onViewProfile$={handleViewProfile}
-          />
-        </div>
-
-        <div class="bg-opacity-30 flex-1 space-y-2 overflow-y-auto bg-[#e5ddd5] p-4 message-list">
-          {messages.value.map((message, index) => {
-            const isCurrentUser = message.sender.id === currentUser.id;
-            const showAvatar =
-              index === 0 ||
-              messages.value[index - 1]?.sender.id !== message.sender.id;
-
-            return (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isCurrentUser={isCurrentUser}
-                showAvatar={showAvatar}
-                user={message.sender}
-              />
-            );
-          })}
-        </div>
-
-        <ChatFooter onSendMessage$={handleSendMessage} />
       </div>
     );
   }

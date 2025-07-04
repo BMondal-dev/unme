@@ -32,6 +32,20 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
+// Create mock objects for SSR
+class MockAuth {
+  currentUser = null;
+  onAuthStateChanged = (callback: any) => {
+    callback(null);
+    return () => {};
+  };
+  signOut = async () => {};
+}
+
+class MockFirestore {}
+class MockStorage {}
+
+// Initialize Firebase
 const firebaseConfig = {
   apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
   authDomain: import.meta.env.PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -42,10 +56,21 @@ const firebaseConfig = {
   measurementId: import.meta.env.PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+// Make auth and other Firebase services work on the server
+const app = typeof window !== 'undefined' 
+  ? (!getApps().length ? initializeApp(firebaseConfig) : getApp())
+  : {} as any;
+
+const auth = typeof window !== 'undefined' 
+  ? getAuth(app) 
+  : new MockAuth() as any;
+
+const db = typeof window !== 'undefined' 
+  ? getFirestore(app) 
+  : new MockFirestore() as any;
+  
+const storage = typeof window !== 'undefined' 
+  ? getStorage(app) 
+  : new MockStorage() as any;
 
 export { app, auth, db, storage };

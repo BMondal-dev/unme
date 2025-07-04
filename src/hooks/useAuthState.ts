@@ -20,13 +20,13 @@ export function useAuthState() {
     }
     
     const unsubscribe = auth.onAuthStateChanged(
-      (authUser) => {
+      (authUser: User | null) => {
         console.log('Auth state changed:', authUser ? 'User authenticated' : 'No user');
         user.value = authUser;
         authReady.value = true;
         isLoading.value = false;
       },
-      (err) => {
+      (err: Error) => {
         console.error('Auth state error:', err);
         error.value = err;
         authReady.value = true;

@@ -78,10 +78,23 @@ export const ChatList = component$<ChatListProps>(({ chats: initialChats, search
             where('uid', '==', otherUserId)
           ));
           
-          let userData = { displayName: "User", photoURL: null };
-          if (!userRef.empty) {
-            userData = userRef.docs[0].data();
-          }
+          let userData = {
+  displayName: "User",
+  photoURL: null,
+  isOnline: false,
+  status: "Available",
+  phoneNumber: null
+};
+if (!userRef.empty) {
+  const raw = userRef.docs[0].data();
+  userData = {
+    displayName: raw.name || "User",
+    photoURL: raw.profileImage || null,
+    isOnline: false,
+    status: "Available",
+    phoneNumber: raw.phone || null
+  };
+}
           
           // Format the chat item
           const lastMessageTime = chatData.updatedAt?.toDate() || new Date();
@@ -94,9 +107,9 @@ export const ChatList = component$<ChatListProps>(({ chats: initialChats, search
             lastMessage: chatData.lastMessage?.content || "No messages yet",
             time: timeFormatted,
             unreadCount: 0, // Would need to calculate this
-            isOnline: userData.isOnline || false,
-            status: userData.status || "Available",
-            phoneNumber: userData.phoneNumber || null
+            isOnline: userData.isOnline ?? false,
+            status: userData.status ?? "Available",
+            phoneNumber: userData.phoneNumber ?? null
           });
         }
         
