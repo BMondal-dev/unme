@@ -3,7 +3,7 @@ import { useNavigate } from "@builder.io/qwik-city";
 import type { ChatItem } from "../../types/chat";
 import { ChatListItem } from "./ChatListItem";
 import { auth, db } from "~/firebase";
-import { collection, query, where, onSnapshot, getDocs, orderBy, limit } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy, limit, doc, getDoc } from "firebase/firestore";
 
 interface ChatListProps {
   chats?: ChatItem[];
@@ -65,37 +65,34 @@ export const ChatList = component$<ChatListProps>(({ chats: initialChats, search
         const chatsList: ChatItem[] = [];
         
         // Process each chat document
-        for (const doc of snapshot.docs) {
-          const chatData = doc.data();
+        for (const chatDoc of snapshot.docs) {
+          const chatData = chatDoc.data();
           const participants = chatData.participants || [];
-          
           // Find the other participant (for 1:1 chats)
           const otherUserId = participants.find((id: string) => id !== currentUserId);
           if (!otherUserId) continue;
           
           // Get the user info for the other participant
-          const userRef = await getDocs(query(
-            collection(db, 'users'),
-            where('uid', '==', otherUserId)
-          ));
-          
+          const userDocRef = doc(db, 'users', otherUserId);
+          const userDoc = await getDoc(userDocRef);
+
           let userData = {
-  displayName: "User",
-  photoURL: null,
-  isOnline: false,
-  status: "Available",
-  phoneNumber: null
-};
-if (!userRef.empty) {
-  const raw = userRef.docs[0].data();
-  userData = {
-    displayName: raw.name || "User",
-    photoURL: raw.profileImage || null,
-    isOnline: false,
-    status: "Available",
-    phoneNumber: raw.phone || null
-  };
-}
+            displayName: "User",
+            photoURL: null,
+            isOnline: false,
+            status: "Available",
+            phoneNumber: null
+          };
+          if (userDoc.exists()) {
+            const raw = userDoc.data();
+            userData = {
+              displayName: raw.name || "User",
+              photoURL: raw.profileImage || null,
+              isOnline: false,
+              status: "Available",
+              phoneNumber: raw.phone || null
+            };
+          }
           
           // Format the chat item
           const lastMessageTime = chatData.updatedAt?.toDate() || new Date();

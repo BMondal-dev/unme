@@ -51,10 +51,10 @@ export default component$(() => {
         const userData = doc.data();
         
         // Don't show the current user
-        if (userData.uid === auth.currentUser?.uid) return;
+        if (doc.id === auth.currentUser?.uid) return;
         
         results.push({
-          id: userData.uid,
+          id: doc.id,
           name: userData.name || "User",
           avatar: userData.profileImage || userData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.uid}`,
           lastMessage: "No messages yet",
@@ -76,31 +76,27 @@ export default component$(() => {
   });
 
   const handleStartChat = $(async (userId: string) => {
-    if (!auth.currentUser) {
+    if (
+      typeof window === "undefined" ||
+      !auth.currentUser ||
+      !db
+    ) {
       show("You must be logged in to start a chat", "error");
       return;
     }
-
     try {
-      // Create a chat ID from both user IDs (sorted to ensure consistency)
       const chatId = [auth.currentUser.uid, userId].sort().join('_');
-      
-      // Check if chat already exists
       const chatRef = doc(db, 'chats', chatId);
       const chatDoc = await getDoc(chatRef);
-      
       if (!chatDoc.exists()) {
-        // Create a new chat
         await setDoc(chatRef, {
           participants: [auth.currentUser.uid, userId],
           createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          lastMessage: { content: '', timestamp: serverTimestamp() }
         });
-        
         show("Chat created successfully", "success");
       }
-      
-      // Navigate to chat
       nav(`/chat/${userId}`);
     } catch (err) {
       console.error("Error creating chat:", err);
